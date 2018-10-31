@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+	<parameters>
+		<parameter key="knp_menu.factory.class">Knp\Menu\MenuFactory</parameter>
+		<parameter key="knp_menu.factory_extension.routing.class">Knp\Menu\Integration\Symfony\RoutingExtension</parameter>
+		<parameter key="knp_menu.matcher.class">Knp\Menu\Matcher\Matcher</parameter>
+		<parameter key="knp_menu.voter.router.class">Knp\Menu\Matcher\Voter\RouteVoter</parameter>
+
+	</parameters>
+
+	<services>
+		<defaults public="false" />
+
+		<service id="knp_menu.factory" class="%knp_menu.factory.class%" public="true" />
+
+		<service id="knp_menu.factory_extension.routing" class="%knp_menu.factory_extension.routing.class%" public="false">
+			<argument type="service" id="router" />
+			<tag name="knp_menu.factory_extension" />
+		</service>
+
+		<service id="knp_menu.matcher" class="%knp_menu.matcher.class%" public="true">
+			<argument type="collection" />
+		</service>
+
+		<service id="knp_menu.voter.router" class="%knp_menu.voter.router.class%">
+			<argument type="service" id="request_stack" />
+			<tag name="knp_menu.voter" />
+		</service>
+
+		<service id="knp_menu.manipulator" class="Knp\Menu\Util\MenuManipulator" public="false" />
+	</services>
+</container>

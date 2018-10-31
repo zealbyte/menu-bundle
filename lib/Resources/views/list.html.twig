@@ -1,0 +1,94 @@
+{% extends '@Menu/base.html.twig' %}
+
+{% block root %}
+	{% set listAttributes = item.childrenAttributes %}
+	{{- block('list') -}}
+{% endblock root %}
+
+
+{% block list %}
+	{% if item.hasChildren and item.displayChildren %}
+		{% import '@Menu/macros.html.twig' as macros %}
+
+		<ul{{ macros.attributes(listAttributes) }}>
+			{{- block('children') -}}
+		</ul>
+	{% endif %}
+{% endblock list %}
+
+
+{% block children %}
+	{# save current variables #}
+	{% set currentItem = item %}
+
+	{% for item in currentItem.children %}
+			{{ block('item') }}
+	{% endfor %}
+
+	{# restore current variables #}
+	{% set item = currentItem %}
+{% endblock children %}
+
+
+{% block item %}
+	{# building the class of the item #}
+	{%- set classes = item.attribute('class') is not empty ? [item.attribute('class')] : [] %}
+
+	{%- if item is current %}
+		{%- set classes = classes|merge(['active']) %}
+	{%- elseif item is ancestor %}
+		{%- set classes = classes|merge(['child-active']) %}
+	{%- endif %}
+
+	{%- if item is first %}
+		{%- set classes = classes|merge(['first']) %}
+	{%- endif %}
+
+	{%- if item is last %}
+		{%- set classes = classes|merge(['last']) %}
+	{%- endif %}
+
+	{# Mark item as "leaf" (no children) or as "branch" (has children that are displayed) #}
+	{% if item.hasChildren %}
+		{% if item.displayChildren %}
+			{%- set classes = classes|merge(['branch']) %}
+		{% endif %}
+	{% else %}
+		{%- set classes = classes|merge(['leaf']) %}
+	{%- endif %}
+
+	{%- set attributes = item.attributes %}
+	{%- if classes is not empty %}
+		{%- set attributes = attributes|merge({'class': classes|join(' ')}) %}
+	{%- endif %}
+
+	{# displaying the item #}
+	{% import '@Menu/macros.html.twig' as macros %}
+	<li{{ macros.attributes(attributes) }}>
+		{%- if item.uri is not empty and item is not current %}
+			{{- block('linkElement') -}}
+		{%- else %}
+			{{- block('spanElement') -}}
+		{%- endif %}
+
+		{# render the list of children#}
+		{%- set childrenClasses = item.childrenAttribute('class') is not empty ? [item.childrenAttribute('class')] : [] %}
+		{%- set childrenClasses = childrenClasses|merge(['menu_level_' ~ item.level]) %}
+		{%- set listAttributes = item.childrenAttributes|merge({'class': childrenClasses|join(' ') }) %}
+
+		{{- block('list') -}}
+	</li>
+{% endblock %}
+
+
+{% block linkElement %}
+	{% import '@Menu/macros.html.twig' as macros %}
+	<a href="{{ item.uri }}"{{ macros.attributes(linkAttributes) }}>{{- item.label -}}</a>
+{% endblock %}
+
+
+{% block spanElement %}
+	{% import '@Menu/macros.html.twig' as macros %}
+	<span{{ macros.attributes(item.labelAttributes) }}>{{- item.label -}}</span>
+{% endblock %}
+

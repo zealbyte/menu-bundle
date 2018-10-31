@@ -1,0 +1,26 @@
+{
+	"name": "zealbyte/menu-bundle",
+	"description": "ZealByte menu bundle for Symfony 4",
+	"keywords": [],
+	"homepage": "https://zealbyte.com",
+	"license": "MIT",
+	"type": "symfony-bundle",
+	"authors": [
+		{
+			"name": "Dustin Martella",
+			"email": "dustin.martella@zealbyte.com"
+		}
+	],
+	"require": {
+		"php": ">=7.1.0",
+		"knplabs/knp-menu": "~2.3",
+		"symfony/framework-bundle": "^4.0",
+		"twig/twig": "^2.4"
+	},
+	"autoload": {
+		"psr-4": {
+			"ZealByte\\Bundle\\MenuBundle\\": "lib"
+		}
+	},
+	"minimum-stability": "dev"
+}

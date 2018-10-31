@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+	<parameters>
+		<parameter key="menu.renderer.list.options" type="collection"></parameter>
+
+		<parameter key="menu.renderer.twig.options" type="collection">
+			<parameter key="template">%menu.default_template%</parameter>
+		</parameter>
+	</parameters>
+
+	<services>
+		<defaults public="false" />
+
+		<service id="Knp\Menu\Renderer\ListRenderer" public="false">
+			<argument type="service" id="knp_menu.matcher" />
+			<argument>%menu.renderer.list.options%</argument>
+			<argument>%kernel.charset%</argument>
+		</service>
+
+		<service id="ZealByte\Bundle\MenuBundle\Renderer\TwigRenderer" public="false">
+			<argument type="service" id="twig" />
+			<argument type="service" id="knp_menu.matcher" />
+			<argument>%menu.renderer.twig.options%</argument>
+		</service>
+
+		<service id="ZealByte\Bundle\MenuBundle\Provider\MenuBuilderProvider" public="false">
+			<argument type="service" id="knp_menu.factory" />
+			<argument type="service" id="translator" on-invalid="ignore" />
+		</service>
+		<service id="menu.provider.builder" alias="ZealByte\Bundle\MenuBundle\Provider\MenuBuilderProvider" public="false" />
+
+		<service id="ZealByte\Bundle\MenuBundle\Renderer\RendererProvider" public="false">
+			<call method="add">
+				<argument type="service" id="ZealByte\Bundle\MenuBundle\Renderer\TwigRenderer" />
+				<argument>twig</argument>
+			</call>
+			<call method="add">
+				<argument type="service" id="Knp\Menu\Renderer\ListRenderer" />
+				<argument>list</argument>
+			</call>
+		</service>
+
+		<service id="ZealByte\Bundle\MenuBundle\Twig\MenuHelper" public="false">
+			<!-- <argument type="service" id="ZealByte\Bundle\MenuBundle\Renderer\RendererProvider" /> -->
+			<!-- <argument type="service" id="menu.provider.builder" /> -->
+			<!-- <argument type="service" id="knp_menu.manipulator" /> -->
+			<!-- <argument type="service" id="knp_menu.matcher" /> -->
+		</service>
+
+		<service id="ZealByte\Bundle\MenuBundle\Twig\Extension\MenuExtension">
+			<argument type="service" id="ZealByte\Bundle\MenuBundle\Twig\MenuHelper" />
+			<argument type="service" id="knp_menu.matcher" />
+			<tag name="twig.extension" />
+		</service>
+
+		<!-- Hack to get templating to work for now -->
+		<service id="ZealByte\Bundle\MenuBundle\EventListener\MenuHelperSubscriber" public="false">
+			<argument type="service" id="menu.provider.builder" /> <!-- Hack -->
+			<argument type="service" id="knp_menu.manipulator" /> <!-- Hack -->
+			<argument type="service" id="knp_menu.matcher" /> <!-- Hack -->
+			<argument type="service" id="ZealByte\Bundle\MenuBundle\Renderer\RendererProvider" /> <!-- Hack -->
+			<argument type="service" id="ZealByte\Bundle\MenuBundle\Twig\MenuHelper" on-invalid="ignore" />
+			<tag name="kernel.event_subscriber" />
+		</service>
+
+	</services>
+</container>
